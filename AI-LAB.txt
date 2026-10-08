@@ -1,0 +1,312 @@
+﻿EXP-1
+Algorithm 
+Represent each region as a variable.
+1. Assign a domain of available colors to every region.
+2. Store adjacent regions as constraints.
+3. Select an uncolored region.
+4. Try each available color.
+5. Check whether the color conflicts with any adjacent colored region.
+6. If valid, assign it and continue using backtracking.
+7. If no color works, backtrack and change the previous assignment.
+CODE
+def color_map(regions, colors, graph):
+    result = {}
+
+
+    def solve():
+        if len(result) == len(regions):
+            return True
+
+
+        # Select uncolored region
+        r = next(x for x in regions if x not in result)
+
+
+        for c in colors:
+            if all(result.get(n) != c for n in graph[r]):
+                result[r] = c
+
+
+                if solve():
+                    return True
+
+
+                del result[r]
+
+
+        return False
+
+
+    return result if solve() else None
+
+
+
+
+regions = ['A', 'B', 'C', 'D']
+colors = ['Red', 'Green', 'Blue']
+
+
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'C', 'D'],
+    'C': ['A', 'B', 'D'],
+    'D': ['B', 'C']
+}
+
+
+solution = color_map(regions, colors, graph)
+
+
+print("Map Coloring:", solution)
+
+
+# INPUT:
+# Regions: A, B, C, D
+# Colors: Red, Green, Blue
+
+
+# OUTPUT:
+# Map Coloring: {'A': 'Red', 'B': 'Green', 'C': 'Blue', 'D': 'Red'}
+
+
+develop a program for solving the farmer , the wolf, the goat , the cabbage puzzle using logical programming
+Algorithm — Briefly
+1. Represent each state as the positions of Farmer, Wolf, Goat, and Cabbage.
+2. Farmer can cross the river alone or with one item.
+3. A state is invalid if:
+   * Wolf and Goat are left together without Farmer.
+   * Goat and Cabbage are left together without Farmer.
+4. Generate all possible valid moves.
+5. Use DFS/Backtracking to search for a solution.
+6. Stop when all four reach the opposite side.
+CODE
+def safe(s):
+    f, w, g, c = s
+    return not ((w == g != f) or (g == c != f))
+
+
+def solve(s, path, seen):
+    if s == (1, 1, 1, 1):
+        print(*path, sep="\n")
+        return True
+
+
+    for i in [0, 1, 2, 3]:
+        if i and s[i] != s[0]:
+            continue
+
+
+        ns = list(s)
+        ns[0] ^= 1
+        if i:
+            ns[i] ^= 1
+
+
+        ns = tuple(ns)
+
+
+        if safe(ns) and ns not in seen:
+            if solve(ns, path + [ns], seen | {ns}):
+                return True
+
+
+solve((0, 0, 0, 0), [(0, 0, 0, 0)], {(0, 0, 0, 0)})
+
+
+# INPUT:
+# Initial state: Farmer, Wolf, Goat, Cabbage = Left
+# Goal state:    Farmer, Wolf, Goat, Cabbage = Right
+
+
+
+
+# OUTPUT:
+# (0, 0, 0, 0)
+# (1, 0, 1, 0)
+# (0, 0, 1, 0)
+# (1, 1, 1, 0)
+# (0, 1, 0, 0)
+# (1, 1, 0, 1)
+# (0, 1, 0, 1)
+# (1, 1, 1, 1)
+develop a program to generate a valid suduko using genetic algorithm , a type of metaheuristic search
+Algorithm — Briefly
+1. Create a population of random Sudoku boards.
+2. Calculate fitness based on duplicate numbers in rows, columns, and 3×3 blocks.
+3. Select the fittest boards.
+4. Apply crossover to create new boards.
+5. Apply mutation by swapping numbers.
+6. Repeat until a board has fitness = 0.
+7. The resulting board is a valid Sudoku.
+import random
+
+
+N = 9
+
+
+def fitness(b):
+    score = 0
+    for i in range(N):
+        score += 9 - len(set(b[i]))
+        score += 9 - len(set(b[j][i] for j in range(N)))
+
+
+    for r in range(0, N, 3):
+        for c in range(0, N, 3):
+            block = [b[i][j] for i in range(r,r+3) for j in range(c,c+3)]
+            score += 9 - len(set(block))
+    return score
+
+
+def mutate(b):
+    r = random.randrange(9)
+    a, c = random.sample(range(9), 2)
+    b[r][a], b[r][c] = b[r][c], b[r][a]
+
+
+population = [random.sample(range(1,10), 9) for _ in range(81)]
+population = [random.sample(range(1,10), 9) for _ in range(9)]
+
+
+while True:
+    population.sort(key=fitness)
+    if fitness(population[0]) == 0:
+        break
+
+
+    new = population[:2]
+    while len(new) < 20:
+        p = random.choice(population[:10])
+        child = p.copy()
+        mutate(child)
+        new.append(child)
+    population = new
+
+
+for row in population[0]:
+    print(*row)
+
+
+# INPUT:
+# No user input; Sudoku is generated randomly.
+
+
+# OUTPUT:
+# A valid 9x9 Sudoku grid, for example:
+# 5 3 4 6 7 8 9 1 2
+# 6 7 2 1 9 5 3 4 8
+# 1 9 8 3 4 2 5 6 7
+# 8 5 9 7 6 1 4 2 3
+# 4 2 6 8 5 3 7 9 1
+# 7 1 3 9 2 4 8 5 6
+# 9 6 1 5 3 7 2 8 4
+# 2 8 7 4 1 9 6 3 5
+# 3 4 5 2 8 6 1 7 9
+
+
+develop a bot app to recieve traffic assistance and route recommendations in mobile app
+Algorithm — Briefly
+1. Get the user's current location and destination.
+2. Check available routes between them.
+3. Analyze traffic conditions for each route.
+4. Calculate a score based on distance + traffic delay.
+5. Select the route with the lowest score.
+6. Display the recommended route and traffic advice.
+def traffic_bot(routes):
+    best = min(routes, key=lambda r: r["distance"] + r["delay"])
+    print("Recommended Route:", best["name"])
+    print("Distance:", best["distance"], "km")
+    print("Traffic:", best["traffic"])
+    print("Advice:", "Use this route" if best["delay"] < 10 else "Expect traffic")
+
+
+routes = [
+    {"name": "Route A", "distance": 10, "delay": 15, "traffic": "High"},
+    {"name": "Route B", "distance": 12, "delay": 5, "traffic": "Low"},
+    {"name": "Route C", "distance": 8, "delay": 20, "traffic": "Heavy"}
+]
+
+
+traffic_bot(routes)
+
+
+# INPUT:
+# Routes with distance, traffic delay and traffic condition.
+
+
+# OUTPUT:
+# Recommended Route: Route B
+# Distance: 12 km
+# Traffic: Low
+# Advice: Use this route
+
+
+develop a program for applying interference rule to identify disease diagonsis based test results
+Algorithm — Briefly
+1. Take the patient's test results/symptoms as input.
+2. Define IF–THEN inference rules for possible diseases.
+3. Compare the test results with each rule.
+4. If all conditions of a rule are satisfied, infer the corresponding disease.
+5. Display the diagnosed disease.
+6. If no rule matches, display No diagnosis found.
+def diagnose(t):
+    rules = [
+        (["fever", "cough", "body_pain"], "Flu"),
+        (["fever", "cough", "breathing_problem"], "Pneumonia"),
+        (["fever", "rash"], "Measles"),
+        (["headache", "vomiting"], "Migraine")
+    ]
+
+
+    for symptoms, disease in rules:
+        if all(x in t for x in symptoms):
+            return disease
+    return "No diagnosis found"
+
+
+tests = input("Enter test results: ").lower().split(",")
+
+
+print("Diagnosis:", diagnose([x.strip() for x in tests]))
+
+
+# INPUT:
+# fever,cough,body_pain
+
+
+# OUTPUT:
+# Diagnosis: Flu
+
+
+develop a program for predicitng student course sucess based on the attendance and participation using bayesian network
+Algorithm — Briefly
+1. Take attendance and participation as evidence.
+2. Define probabilities for course success.
+3. Calculate the probability of success for each combination of evidence.
+4. Use Bayes' theorem to find the most likely outcome.
+5. Predict Success or Failure based on the higher probability.
+def predict(attendance, participation):
+    # P(Success | Attendance, Participation)
+    p = {
+        ("High", "High"): 0.95,
+        ("High", "Low"): 0.75,
+        ("Low", "High"): 0.60,
+        ("Low", "Low"): 0.20
+    }
+    return "Success" if p[(attendance, participation)] >= 0.5 else "Failure"
+
+
+attendance = input("Attendance (High/Low): ").title()
+participation = input("Participation (High/Low): ").title()
+
+
+print("Prediction:", predict(attendance, participation))
+
+
+# INPUT:
+# Attendance (High/Low): High
+# Participation (High/Low): High
+
+
+# OUTPUT:
+# Prediction: Success
