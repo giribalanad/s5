@@ -1,35 +1,14 @@
-"""
-Experiment 5: Inference Rule to Identify Disease Diagnosis Based on Test Results
+n = int(input("Number of routers: "))
+g = [list(map(int, input().split())) for _ in range(n)]
+s = int(input("Source router: "))
+d, v = [float('inf')]*n, [False]*n
+d[s] = 0
 
-Algorithm:
-1. Take the patient's test results/symptoms as input.
-2. Define IF-THEN inference rules for possible diseases.
-3. Compare the test results with each rule.
-4. If all conditions of a rule are satisfied, infer the corresponding disease.
-5. Display the diagnosed disease.
-6. If no rule matches, display No diagnosis found.
-"""
+for _ in range(n):
+    u = min((i for i in range(n) if not v[i]), key=lambda i: d[i])
+    v[u] = True
+    for j in range(n):
+        if not v[j]:
+            d[j] = min(d[j], d[u] + g[u][j])
 
-
-def diagnose(t):
-    rules = [
-        (["fever", "cough", "body_pain"], "Flu"),
-        (["fever", "cough", "breathing_problem"], "Pneumonia"),
-        (["fever", "rash"], "Measles"),
-        (["headache", "vomiting"], "Migraine")
-    ]
-
-    for symptoms, disease in rules:
-        if all(x in t for x in symptoms):
-            return disease
-    return "No diagnosis found"
-
-
-tests = input("Enter test results: ").lower().split(",")
-print("Diagnosis:", diagnose([x.strip() for x in tests]))
-
-# INPUT:
-# fever,cough,body_pain
-
-# OUTPUT:
-# Diagnosis: Flu
+print("Shortest distances:", *d)

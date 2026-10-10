@@ -1,34 +1,56 @@
-"""
-Experiment 6: Predicting Student Course Success Based on Attendance and Participation using Bayesian Network
 
-Algorithm:
-1. Take attendance and participation as evidence.
-2. Define probabilities for course success.
-3. Calculate the probability of success for each combination of evidence.
-4. Use Bayes' theorem to find the most likely outcome.
-5. Predict Success or Failure based on the higher probability.
-"""
+# ========== TCP SERVER (tcp_server.py) ==========
+import socket
 
-
-def predict(attendance, participation):
-    # P(Success | Attendance, Participation)
-    p = {
-        ("High", "High"): 0.95,
-        ("High", "Low"): 0.75,
-        ("Low", "High"): 0.60,
-        ("Low", "Low"): 0.20
-    }
-    return "Success" if p[(attendance, participation)] >= 0.5 else "Failure"
-
-
-attendance = input("Attendance (High/Low): ").title()
-participation = input("Participation (High/Low): ").title()
-
-print("Prediction:", predict(attendance, participation))
-
-# INPUT:
-# Attendance (High/Low): High
-# Participation (High/Low): High
+s = socket.socket()
+s.bind(("localhost", 5000))
+s.listen(1)
+c, _ = s.accept()
+print("Client:", c.recv(1024).decode())
+c.send(b"Message received")
+c.close()
+s.close()
 
 # OUTPUT:
-# Prediction: Success
+# Client: Hello
+
+
+# ========== TCP CLIENT (tcp_client.py) ==========
+import socket
+
+s = socket.socket()
+s.connect(("localhost", 5000))
+s.send(input("Message: ").encode())
+print("Server:", s.recv(1024).decode())
+s.close()
+
+# INPUT:
+# Message: Hello
+# OUTPUT:
+# Server: Message received
+
+
+# ========== UDP RECEIVER (udp_receiver.py) ==========
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.bind(("localhost", 6000))
+data, addr = s.recvfrom(1024)
+print("Received:", data.decode())
+s.close()
+
+# OUTPUT:
+# Received: Hello
+
+
+# ========== UDP SENDER (udp_sender.py) ==========
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.sendto(input("Message: ").encode(), ("localhost", 6000))
+s.close()
+
+# INPUT:
+# Message: Hello
+# OUTPUT:
+# (No output)
